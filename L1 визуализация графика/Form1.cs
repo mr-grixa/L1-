@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 
 namespace L1_визуализация_графика
@@ -18,8 +18,8 @@ namespace L1_визуализация_графика
             generateX();
             comboBoxX.SelectedIndex = 0;
             comboBoxY.SelectedIndex = 1;
-            
-
+            DrawGraf1();
+            DrawGraf2();
         }
 
         public void generateX()
@@ -38,47 +38,102 @@ namespace L1_визуализация_графика
                 dataGridView1["dX1", i].Value = X1[i];
                 dataGridView1["dX2", i].Value = X2[i];
             }
-
+            DrawGraf1();
+            DrawGraf2();
         }
 
-        private void Draw(double[] X, double[] Y)
+        private void Draw()
         {
+            double[] refX = SwitchXY(comboBoxX.SelectedIndex);
+            double[] refY = SwitchXY(comboBoxY.SelectedIndex);
             int size = pictureBoxMain.Size.Width;
+            size--;
             Bitmap bitmap = new Bitmap(size, size);
-            for (int i = 0; i < X.Length; i++)
-            {
-                bitmap.SetPixel((int)(size * X[i]), (int)(size * Y[i]), Color.Black);
+            using (Graphics gXY = Graphics.FromImage(bitmap)) {
+                gXY.Clear(Color.White);
+                int[,] XYbar = new int[10, 10];
+
+                for (int i = 0; i < refX.Length; i++)
+                {
+                    XYbar[(int)(refX[i] * 10), (int)(refY[i] * 10)]++;
+                }
+                for (int x = 0; x < 10; x++)
+                {
+                    for (int y = 0; y < 10; y++)
+                    {
+                        
+                        Brush brush = new SolidBrush(Color.FromArgb(255-XYbar[x, y]*250/ refY.Length,
+                           255-XYbar[x, y] * 250 / refY.Length,
+                           255));
+                        gXY.FillRectangle(brush, x * 20, y * 20, 20, 20);
+                    }
+                }
             }
+
+            for (int i = 0; i < refX.Length; i++)
+            {
+                bitmap.SetPixel((int)(size * refX[i]), (int)(size * refY[i]), Color.Black);
+            }
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBoxMain.Image = bitmap;
 
+            int[] Xbar= new int[10];
+            foreach (double x in refX)
+            {
+                Xbar[(int)(x*10)]++;
+            }
+            Graphics gX = pictureBoxX.CreateGraphics();
+            gX.Clear(Color.White);
+            for (int i=0; i<10; i++)
+            {
+                gX.FillRectangle(Brushes.Green, i * 20 + 1,0, 8,(float)((double)(Xbar[i]) / refX.Length) * 50);
+            }
+
+            int[] Ybar = new int[10];
+            foreach (double y in refY)
+            {
+                Ybar[(int)(y * 10)]++;
+
+            }
+            Graphics gY = pictureBoxY.CreateGraphics();
+            gY.Clear(Color.White);
+            for (int i = 0; i < 10; i++)
+            {
+                gY.FillRectangle(Brushes.Green, 0, (10 - i) * 20 + 1, (float)((double)(Ybar[i]) / refY.Length) * 50, 8);
+            }
+            double meanX = refX.Sum() / refX.Length;
+            double meanY = refX.Sum() / refY.Length;
+            Xaverage.Text = meanX.ToString("F5");
+            Yaverage.Text = meanY.ToString("F5");
+            double XstdDev = Math.Sqrt(refX.Select(x => (x - meanX) * (x - meanX)).Sum() / (refX.Length - 1));
+            double YstdDev = Math.Sqrt(refY.Select(y => (y - meanX) * (y - meanX)).Sum() / (refY.Length - 1));
+            stdDevX.Text = XstdDev.ToString("F5");
+            stdDevY.Text = YstdDev.ToString("F5");
+            double Xmode = refX.GroupBy(x => x)
+                          .OrderByDescending(g => g.Count())
+                          .First()
+                          .Key;
+            double Ymode = refY.GroupBy(x => x)
+                          .OrderByDescending(g => g.Count())
+                          .First()
+                          .Key;
+            modeX.Text = Xmode.ToString("F5");
+            modeY.Text = Ymode.ToString("F5");
+            double Xmedian = refX.OrderBy(x => x).Skip((refX.Length - 1) / 2).Take(2 - refX.Length % 2).Average();
+            double Ymedian = refY.OrderBy(x => x).Skip((refY.Length - 1) / 2).Take(2 - refY.Length % 2).Average();
+            medianX.Text = Xmedian.ToString("F5");
+            medianY.Text = Ymedian.ToString("F5");  
         }
+
+
+
+
 
         private void generate_Click(object sender, EventArgs e)
         {
             generateX();
-            Draw(X1, X2);
+            Draw();
             
-        }
-
-
-
-        private void DrawLine(double x1, double y1, double x2, double y2)
-        {
-            double k = (y2 - y1) / (x2 - x1);
-            double b = y1 - k * x1;
-            int size = pictureBoxGraf1.Size.Width;
-            Bitmap bitmap = new Bitmap(size, size);
-            for (int i = 0; i < 100; i++)
-            {
-                Y1[i] = k * X1[i] + b;
-                if (Y1[i] < 1 && Y1[i] > 0)
-                {
-                    bitmap.SetPixel((int)(X1[i] * size), (int)(Y1[i] * size), Color.Black);
-                }
-                dataGridView1["dY1", i].Value = Y1[i];
-
-            }
-            pictureBoxGraf1.Image = bitmap;
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -88,8 +143,13 @@ namespace L1_визуализация_графика
 
         private void ScrolChanged1(object sender, EventArgs e)
         {
+            DrawGraf1();
+        }
+        private void DrawGraf1()
+        {
             int size = pictureBoxGraf1.Size.Width;
             Bitmap bitmap = new Bitmap(size, size);
+            size--;
             LineUr ur1 = new LineUr(
                 (double)(100 - vScrollBar1_0.Value) / 100d,
                 (double)(100 - vScrollBar1_25.Value) / 100d,
@@ -100,10 +160,8 @@ namespace L1_визуализация_графика
             for (double i = 0; i < 1; i += 0.001d)
             {
                 double y = ur1.GetY(i);
-                if (y < 1 && y > 0)
-                {
-                    bitmap.SetPixel((int)(i * size), (int)(y * size), Color.Black);
-                }
+                bitmap.SetPixel((int)(i * size), (int)(y * size), Color.Black);
+
             }
             bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBoxGraf1.Image = bitmap;
@@ -112,16 +170,15 @@ namespace L1_визуализация_графика
                 Y1[i] = ur1.GetY(X1[i]);
                 dataGridView1["dY1", i].Value = Y1[i];
             }
-            ref double[] refX = ref SwitchXY(comboBoxX.SelectedIndex);
-            ref double[] refY = ref SwitchXY(comboBoxY.SelectedIndex);
-            Draw(refX, refY);
+            if (comboBoxX.SelectedIndex == 2 || comboBoxY.SelectedIndex == 2)
+            {
+                Draw();
+            }
         }
 
         private void comboBoxY_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ref double[] refX = ref SwitchXY(comboBoxX.SelectedIndex);
-            ref double[] refY = ref SwitchXY(comboBoxY.SelectedIndex);
-            Draw(refX, refY);
+            Draw();
         }
         private ref double [] SwitchXY(int CB)
         {
@@ -144,6 +201,47 @@ namespace L1_визуализация_графика
             }
         }
 
+        private void ScrolChanged2(object sender, EventArgs e)
+        {
+            DrawGraf2();
+        }
+        private void DrawGraf2()
+        { 
+                    int size = pictureBoxGraf2.Size.Width;
+            Bitmap bitmap = new Bitmap(size, size);
+            size--;
+            LineUr ur2 = new LineUr(
+                (double)(100 - vScrollBar2_0.Value) / 100d,
+                (double)(100 - vScrollBar2_25.Value) / 100d,
+                (double)(100 - vScrollBar2_50.Value) / 100d,
+                (double)(100 - vScrollBar2_75.Value) / 100d,
+                (double)(100 - vScrollBar2_100.Value) / 100d
+                );
+            for (double i = 0; i < 1; i += 0.001d)
+            {
+                double y = ur2.GetY(i);
+
+                    bitmap.SetPixel((int)(i * size), (int)(y * size), Color.Black);
+                
+            }
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            pictureBoxGraf2.Image = bitmap;
+            for (int i = 0; i < X2.Length; i++)
+            {
+                Y2[i] = ur2.GetY(X2[i]);
+                dataGridView1["dY2", i].Value = Y2[i];
+            }
+            if (comboBoxX.SelectedIndex ==3|| comboBoxY.SelectedIndex == 3)
+            {
+                Draw();
+            }
+        }
+
+
+            private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 
@@ -191,6 +289,10 @@ public class LineUr
         else
         {
             y = k4 * x + b4;
+        }
+        if (!(y < 1))
+        {
+            y =0.99999;
         }
         return y;
     }
