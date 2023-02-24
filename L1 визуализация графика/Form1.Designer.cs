@@ -120,7 +120,7 @@
             this.pictureBoxGraf1.BackColor = System.Drawing.Color.White;
             this.pictureBoxGraf1.Location = new System.Drawing.Point(341, 44);
             this.pictureBoxGraf1.Name = "pictureBoxGraf1";
-            this.pictureBoxGraf1.Size = new System.Drawing.Size(100, 100);
+            this.pictureBoxGraf1.Size = new System.Drawing.Size(100, 101);
             this.pictureBoxGraf1.TabIndex = 3;
             this.pictureBoxGraf1.TabStop = false;
             // 
@@ -195,7 +195,7 @@
             this.pictureBoxGraf2.BackColor = System.Drawing.Color.White;
             this.pictureBoxGraf2.Location = new System.Drawing.Point(464, 44);
             this.pictureBoxGraf2.Name = "pictureBoxGraf2";
-            this.pictureBoxGraf2.Size = new System.Drawing.Size(100, 100);
+            this.pictureBoxGraf2.Size = new System.Drawing.Size(100, 101);
             this.pictureBoxGraf2.TabIndex = 7;
             this.pictureBoxGraf2.TabStop = false;
             // 
@@ -534,7 +534,6 @@
             this.Controls.Add(this.pictureBoxMain);
             this.Name = "Form1";
             this.Text = "Щербинин Григорий 201-325";
-            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.UpDownCout)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxGraf1)).EndInit();

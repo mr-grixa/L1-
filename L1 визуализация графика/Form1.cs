@@ -49,7 +49,8 @@ namespace L1_визуализация_графика
             int size = pictureBoxMain.Size.Width;
             size--;
             Bitmap bitmap = new Bitmap(size, size);
-            using (Graphics gXY = Graphics.FromImage(bitmap)) {
+            using (Graphics gXY = Graphics.FromImage(bitmap))
+            {
                 gXY.Clear(Color.White);
                 int[,] XYbar = new int[10, 10];
 
@@ -61,9 +62,9 @@ namespace L1_визуализация_графика
                 {
                     for (int y = 0; y < 10; y++)
                     {
-                        
-                        Brush brush = new SolidBrush(Color.FromArgb(255-XYbar[x, y]*250/ refY.Length,
-                           255-XYbar[x, y] * 250 / refY.Length,
+
+                        Brush brush = new SolidBrush(Color.FromArgb(255 - XYbar[x, y] * 250 / refY.Length,
+                           255 - XYbar[x, y] * 250 / refY.Length,
                            255));
                         gXY.FillRectangle(brush, x * 20, y * 20, 20, 20);
                     }
@@ -77,16 +78,16 @@ namespace L1_визуализация_графика
             bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureBoxMain.Image = bitmap;
 
-            int[] Xbar= new int[10];
+            int[] Xbar = new int[10];
             foreach (double x in refX)
             {
-                Xbar[(int)(x*10)]++;
+                Xbar[(int)(x * 10)]++;
             }
             Graphics gX = pictureBoxX.CreateGraphics();
             gX.Clear(Color.White);
-            for (int i=0; i<10; i++)
+            for (int i = 0; i < 10; i++)
             {
-                gX.FillRectangle(Brushes.Green, i * 20 + 1,0, 8,(float)((double)(Xbar[i]) / refX.Length) * 50);
+                gX.FillRectangle(Brushes.Green, i * 20 + 1, 0, 19, (float)((double)(Xbar[i]) / refX.Length) * 50);
             }
 
             int[] Ybar = new int[10];
@@ -99,7 +100,7 @@ namespace L1_визуализация_графика
             gY.Clear(Color.White);
             for (int i = 0; i < 10; i++)
             {
-                gY.FillRectangle(Brushes.Green, 0, (10 - i) * 20 + 1, (float)((double)(Ybar[i]) / refY.Length) * 50, 8);
+                gY.FillRectangle(Brushes.Green, 0, (9 - i) * 20, (float)((double)(Ybar[i]) / refY.Length) * 50, 19);
             }
             double meanX = refX.Sum() / refX.Length;
             double meanY = refX.Sum() / refY.Length;
@@ -122,7 +123,7 @@ namespace L1_визуализация_графика
             double Xmedian = refX.OrderBy(x => x).Skip((refX.Length - 1) / 2).Take(2 - refX.Length % 2).Average();
             double Ymedian = refY.OrderBy(x => x).Skip((refY.Length - 1) / 2).Take(2 - refY.Length % 2).Average();
             medianX.Text = Xmedian.ToString("F5");
-            medianY.Text = Ymedian.ToString("F5");  
+            medianY.Text = Ymedian.ToString("F5");
         }
 
 
@@ -133,7 +134,7 @@ namespace L1_визуализация_графика
         {
             generateX();
             Draw();
-            
+
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -147,9 +148,17 @@ namespace L1_визуализация_графика
         }
         private void DrawGraf1()
         {
-            int size = pictureBoxGraf1.Size.Width;
-            Bitmap bitmap = new Bitmap(size, size);
-            size--;
+            Graphics g = pictureBoxGraf1.CreateGraphics();
+            g.Clear(Color.White);
+            Point[] points = {
+            new Point(0 ,vScrollBar1_0.Value   ),
+            new Point(25,vScrollBar1_25.Value  ),
+            new Point(50,vScrollBar1_50.Value  ),
+            new Point(75,vScrollBar1_75.Value  ),
+            new Point(100,vScrollBar1_100.Value),
+            };
+
+            g.DrawLines(Pens.Black, points);
             LineUr ur1 = new LineUr(
                 (double)(100 - vScrollBar1_0.Value) / 100d,
                 (double)(100 - vScrollBar1_25.Value) / 100d,
@@ -157,14 +166,7 @@ namespace L1_визуализация_графика
                 (double)(100 - vScrollBar1_75.Value) / 100d,
                 (double)(100 - vScrollBar1_100.Value) / 100d
                 );
-            for (double i = 0; i < 1; i += 0.001d)
-            {
-                double y = ur1.GetY(i);
-                bitmap.SetPixel((int)(i * size), (int)(y * size), Color.Black);
 
-            }
-            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            pictureBoxGraf1.Image = bitmap;
             for (int i = 0; i < X1.Length; i++)
             {
                 Y1[i] = ur1.GetY(X1[i]);
@@ -180,7 +182,7 @@ namespace L1_визуализация_графика
         {
             Draw();
         }
-        private ref double [] SwitchXY(int CB)
+        private ref double[] SwitchXY(int CB)
         {
             switch (CB)
             {
@@ -206,10 +208,18 @@ namespace L1_визуализация_графика
             DrawGraf2();
         }
         private void DrawGraf2()
-        { 
-                    int size = pictureBoxGraf2.Size.Width;
-            Bitmap bitmap = new Bitmap(size, size);
-            size--;
+        {
+            Graphics g = pictureBoxGraf2.CreateGraphics();
+            g.Clear(Color.White);
+            Point[] points = {
+            new Point(0 ,vScrollBar2_0.Value   ),
+            new Point(25,vScrollBar2_25.Value  ),
+            new Point(50,vScrollBar2_50.Value  ),
+            new Point(75,vScrollBar2_75.Value  ),
+            new Point(100,vScrollBar2_100.Value),
+            };
+
+            g.DrawLines(Pens.Black, points);
             LineUr ur2 = new LineUr(
                 (double)(100 - vScrollBar2_0.Value) / 100d,
                 (double)(100 - vScrollBar2_25.Value) / 100d,
@@ -217,30 +227,16 @@ namespace L1_визуализация_графика
                 (double)(100 - vScrollBar2_75.Value) / 100d,
                 (double)(100 - vScrollBar2_100.Value) / 100d
                 );
-            for (double i = 0; i < 1; i += 0.001d)
-            {
-                double y = ur2.GetY(i);
 
-                    bitmap.SetPixel((int)(i * size), (int)(y * size), Color.Black);
-                
-            }
-            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            pictureBoxGraf2.Image = bitmap;
             for (int i = 0; i < X2.Length; i++)
             {
                 Y2[i] = ur2.GetY(X2[i]);
                 dataGridView1["dY2", i].Value = Y2[i];
             }
-            if (comboBoxX.SelectedIndex ==3|| comboBoxY.SelectedIndex == 3)
+            if (comboBoxX.SelectedIndex == 3 || comboBoxY.SelectedIndex == 3)
             {
                 Draw();
             }
-        }
-
-
-            private void Form1_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }
@@ -292,7 +288,7 @@ public class LineUr
         }
         if (!(y < 1))
         {
-            y =0.99999;
+            y = 0.99999;
         }
         return y;
     }
